@@ -1,0 +1,6 @@
+MX6ULEVK BOARD
+M:	Volansys Technologies
+S:	Maintained
+F:	board/freescale/mx6ulmg/
+F:	include/configs/mx6ulmg.h
+F:	configs/mx6ulmg_defconfig
