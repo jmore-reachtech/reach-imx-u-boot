@@ -102,34 +102,12 @@
 	"fdt_addr_r=0x83000000\0" \
 	"kernel_addr_r=0x80800000\0"
 
-/*
- * UpdateHub configuration
- */
-
-#define CONFIG_BOOTCOUNT_ENV
-
-/* Environment */
-#define UPDATEHUB_LOAD_OS_A     "load mmc 0:1 ${kernel_addr_r} /boot/zImage; " \
-                                "load mmc 0:1 ${fdt_addr_r} /boot/${fdt_file}; "
-#define UPDATEHUB_FIND_ROOT_A   "part uuid mmc 0:1 uuid"
-
-#define UPDATEHUB_LOAD_OS_B     "load mmc 0:2 ${kernel_addr_r} /boot/zImage; " \
-                                "load mmc 0:2 ${fdt_addr_r} /boot/${fdt_file}; "
-#define UPDATEHUB_FIND_ROOT_B   "part uuid mmc 0:2 uuid"
-
-#define UPDATEHUB_BOOTARGS      "root=PARTUUID=${uuid} rootwait rw " \
-                                "console=ttymxc0,115200"
-#define UPDATEHUB_BOOTCMD       "bootz ${kernel_addr_r} - ${fdt_addr_r}"
-
-#include <configs/updatehub-common.h>
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
     ENV_MEM_LAYOUT_SETTINGS \
 	"ip_dyn=yes\0" \
     "fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
 	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT "\0" \
-    UPDATEHUB_ENV
+	"mmcroot=" CONFIG_MMCROOT "\0"
 
 #endif
