@@ -315,7 +315,7 @@ static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 
 int board_mmc_get_env_dev(int devno)
 {
-	if (devno == 1 && mx6_esdhc_fused(USDHC1_BASE_ADDR))
+	if (devno == 1)
 		devno = 0;
 
 	return devno;
@@ -323,7 +323,7 @@ int board_mmc_get_env_dev(int devno)
 
 int mmc_map_to_kernel_blk(int devno)
 {
-	if (devno == 0 && mx6_esdhc_fused(USDHC1_BASE_ADDR))
+	if (devno == 0)
 		devno = 1;
 
 	return devno;
