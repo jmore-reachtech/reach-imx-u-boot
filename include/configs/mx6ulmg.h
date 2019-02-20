@@ -16,7 +16,6 @@
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN	(16 * SZ_1M)
 
-#define CONFIG_MXC_UART
 #define CONFIG_MXC_UART_BASE	UART1_BASE
 
 #define PHYS_SDRAM_SIZE			SZ_256M
@@ -34,7 +33,6 @@
 #define CONFIG_STACKSIZE		    SZ_128K
 
 /* Physical Memory Map */
-#define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM			MMDC0_ARB_BASE_ADDR
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM
@@ -47,12 +45,8 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* I2C configs */
-#define CONFIG_CMD_I2C
 #ifdef CONFIG_CMD_I2C
 #define CONFIG_SYS_I2C
-#define CONFIG_SYS_I2C_MXC
-#define CONFIG_SYS_I2C_MXC_I2C1		/* enable I2C bus 1 */
-#define CONFIG_SYS_I2C_MXC_I2C2		/* enable I2C bus 2 */
 #define CONFIG_SYS_I2C_SPEED		100000
 
 /* PMIC on modular gateway i.mx6ul */
@@ -63,8 +57,6 @@
 #endif
 
 #ifdef CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
-#define CONFIG_MII
 #define CONFIG_FEC_ENET_DEV		0
  
 #if (CONFIG_FEC_ENET_DEV == 0)
@@ -77,8 +69,6 @@
 #define CONFIG_FEC_XCV_TYPE			RMII
 #endif
 #define CONFIG_ETHPRIME				"FEC"
-#define CONFIG_PHYLIB
-#define CONFIG_PHY_MICREL
 #endif
 
 /* MMC Configs */
@@ -92,9 +82,8 @@
 #define CONFIG_MMCROOT			    "/dev/mmcblk0p"  /* USDHC2 */
 
 /* Environment */
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_SIZE			SZ_8K
-#define CONFIG_ENV_OFFSET		(12 * SZ_64K)
+#define CONFIG_ENV_OFFSET		(1048576)
 
 #define ENV_MEM_LAYOUT_SETTINGS \
 	"fdt_high=0xffffffff\0" \
