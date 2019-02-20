@@ -11,7 +11,7 @@
 #include <asm/arch/imx-regs.h>
 #include <linux/sizes.h>
 #include "mx6_common.h"
-#include <asm/imx-common/gpio.h>
+#include <asm/mach-imx/gpio.h>
 
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN	(16 * SZ_1M)
