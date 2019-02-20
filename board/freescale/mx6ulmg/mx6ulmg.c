@@ -22,7 +22,6 @@
 #include <miiphy.h>
 #include <linux/sizes.h>
 #include <mmc.h>
-#include <mxsfb.h>
 #include <netdev.h>
 #include <power/pmic.h>
 #include <power/pfuze3001_pmic.h>
@@ -556,6 +555,7 @@ int board_phy_config(struct phy_device *phydev)
 #endif
 
 #ifdef CONFIG_VIDEO_MXS
+#include <mxsfb.h>
 static iomux_v3_cfg_t const lcd_pads[] = {
 	MX6_PAD_LCD_CLK__LCDIF_CLK | MUX_PAD_CTRL(LCD_PAD_CTRL),
 	MX6_PAD_LCD_ENABLE__LCDIF_ENABLE | MUX_PAD_CTRL(LCD_PAD_CTRL),
