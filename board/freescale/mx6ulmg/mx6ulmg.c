@@ -521,9 +521,6 @@ static int setup_fec(int fec_id)
 	int ret;
 
 	if (fec_id == 0) {
-		if (check_module_fused(MX6_MODULE_ENET1))
-			return -1;
-
 		/*
 		 * Use 50M anatop loopback REF_CLK1 for ENET1,
 		 * clear gpr1[13], set gpr1[17].
