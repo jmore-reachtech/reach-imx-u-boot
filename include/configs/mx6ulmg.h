@@ -85,18 +85,10 @@
 #define CONFIG_ENV_SIZE			SZ_8K
 #define CONFIG_ENV_OFFSET		(1048576)
 
-#define ENV_MEM_LAYOUT_SETTINGS \
-	"fdt_high=0xffffffff\0" \
-	"initrd_high=ffffffff\0" \
-	"fdt_addr_r=0x83000000\0" \
-	"kernel_addr_r=0x80800000\0"
-
 #define CONFIG_EXTRA_ENV_SETTINGS \
-    ENV_MEM_LAYOUT_SETTINGS \
-	"ip_dyn=yes\0" \
-    "fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
-	"mmcdev="__stringify(CONFIG_SYS_MMC_ENV_DEV)"\0" \
-	"mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
-	"mmcroot=" CONFIG_MMCROOT "\0"
-
+	"fdt_addr_r=0x83000000\0" \
+	"kernel_addr_r=0x80800000\0" \
+	"console=ttymxc0\0" \
+	"bootargs=rw rootfstype=ext4 console=${console},${baudrate} " \
+		"consoleblank=0 vt.global_cursor_default=0\0"
 #endif
