@@ -49,14 +49,11 @@
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SPEED		  100000
 
-#define CONFIG_CONSOLE_DEV		"ttymxc0"
 #define CONFIG_MMCROOT			"/dev/mmcblk2p1"
 
 /* Framebuffer */
-#define CONFIG_VIDEO_SHUTDOWN_LCD
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN_ALIGN
-#define CONFIG_IPUV3_CLK 198000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
 
@@ -66,25 +63,6 @@
 #define CONFIG_SYS_NAND_5_ADDR_CYCLE
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
-/* kernel device tree options */
-#if defined(CONFIG_RD6_7P)
-#define CONFIG_DT "imx6dl-g2h-7p.dtb"
-#elif defined(CONFIG_RD6_7R)
-#define CONFIG_DT "imx6dl-g2h-7r.dtb"
-#elif defined(CONFIG_RD6_57R)
-#define CONFIG_DT "imx6dl-g2h-57r.dtb"
-#elif defined(CONFIG_RD6_57P)
-#define CONFIG_DT "imx6dl-g2h-57p.dtb"
-#elif defined(CONFIG_RD6_10P)
-#define CONFIG_DT "imx6dl-g2h-10p.dtb"
-#elif defined(CONFIG_RD6_10U)
-#define CONFIG_DT "imx6dl-g2h-10u.dtb"
-#else
-#define CONFIG_DT ""
-#endif
-
-#define CONFIG_BOOT_DEV "mmcboot"
-
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"image=boot/zImage\0" \
@@ -92,11 +70,11 @@
 	"splashpos=m,m\0" \
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
-	"console=" CONFIG_CONSOLE_DEV "\0" \
+	"console=ttymxc0\0" \
 	"mmcdev=" __stringify(CONFIG_SYS_MMC_ENV_DEV) "\0" \
 	"mmcpart=1\0" \
 	"mmcroot=" CONFIG_MMCROOT " rw rootfstype=ext4\0" \
-	"fdt_image=boot/" CONFIG_DT "\0" \
+	"fdt_image=boot/" CONFIG_DEFAULT_FDT_FILE "\0" \
 	"mmcargs=setenv bootargs console=${console},${baudrate} quiet " \
 		"root=${mmcroot} consoleblank=0 vt.global_cursor_default=0\0" \
 	"loadimage=load mmc ${mmcdev}:${mmcpart} ${loadaddr} ${image}\0" \
@@ -127,8 +105,6 @@
 	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 /* FLASH and environment organization */
-#define CONFIG_SYS_NO_FLASH
-
 #define CONFIG_ENV_SIZE			(8 * 1024)
 #define CONFIG_SYS_MMC_ENV_DEV		0
 
@@ -141,7 +117,6 @@
 #define CONFIG_ENV_SPI_MODE		CONFIG_SF_DEFAULT_MODE
 #define CONFIG_ENV_SPI_MAX_HZ		CONFIG_SF_DEFAULT_SPEED
 #else
-#define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_ENV_OFFSET		(768 * 1024)
 #endif
 

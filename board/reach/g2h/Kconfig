@@ -9,4 +9,14 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "g2h"
 
+menu "Reach setup"
+
+config LCD_7
+        bool "Support for the LCD_7"
+        default n
+        help
+          Choose this for the 7 inch Reach Display module
+
+endmenu
+
 endif
