@@ -218,7 +218,7 @@ void ldo_mode_set(int ldo_bypass)
 
 int dram_init(void)
 {
-	gd->ram_size = imx_ddr_size();
+	gd->ram_size = PHYS_SDRAM_SIZE;
 
 	return 0;
 }
