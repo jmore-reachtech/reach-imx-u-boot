@@ -91,10 +91,11 @@
 	"console=" CONFIG_CONSOLE_DEV "\0" \
 	"bootargs=rw rootfstype=ext4 console=${console},${baudrate} quiet " \
 		"consoleblank=0 vt.global_cursor_default=0\0" \
-	"splash=boot/splash.bmp\0" \
+	"splash=splash.bmp\0" \
 	"splashpos=m,m\0" \
+	"splashpart=4\0" \
 	"mender_pre_setup_commands=setenv panel ${board_rev}; " \
-		"load mmc ${mender_uboot_dev}:${mender_boot_part} ${kernel_addr_r} ${splash}; " \
+		"load mmc ${mender_uboot_dev}:${splashpart} ${kernel_addr_r} ${splash}; " \
 		"bmp display ${kernel_addr_r};\0 " \
 
 #define CONFIG_BOOTCOMMAND	""
