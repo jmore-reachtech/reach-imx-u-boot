@@ -1,0 +1,27 @@
+U-Boot for Reach Technology G3 MX6 boards
+
+This file contains information for the port of U-Boot to the Reach
+G3 boards.
+
+1. Booting from the SD card
+---------------------------
+
+1a) Building U-Boot for SD card boot
+
+$ make mrproper
+$ make imx6dl_g3_defconfig
+$ make
+
+This will generate the u-boot.imx binary.
+
+1b) Booting from the SD card
+
+- Flash the u-boot.imx binary into the SD card:
+
+sudo dd if=u-boot.imx of=/dev/mmcblk0 bs=1k seek=1; sync
+
+- Insert the SD card into the J12 slot.
+
+- Let pins 2-3 of jumper JP1 in the open position
+
+- Power up the board and U-boot messages should come up in the console

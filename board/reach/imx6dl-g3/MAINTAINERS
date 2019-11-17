@@ -1,0 +1,7 @@
+Reach G3 board
+M:	Steve Sakoman <steve@sakoman.com>
+S:	Maintained
+F:	board/reach/imx6dl-g3/
+F:	include/configs/imx6dl-g3.h
+F:	configs/reach_imx6dl_g3_defconfig
+
