@@ -206,6 +206,11 @@ config TARGET_G2H
 	select DM
 	select DM_THERMAL
 
+config TARGET_IMX6DL_G3
+	bool "imx6dl-g3"
+	select DM
+	select DM_THERMAL
+
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	select MX6QDL
@@ -602,6 +607,7 @@ source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"
 source "board/reach/g2h/Kconfig"
+source "board/reach/imx6dl-g3/Kconfig"
 source "board/seco/Kconfig"
 source "board/sks-kinkel/sksimx6/Kconfig"
 source "board/solidrun/mx6cuboxi/Kconfig"
