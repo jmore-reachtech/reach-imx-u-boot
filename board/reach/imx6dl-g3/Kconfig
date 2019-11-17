@@ -1,0 +1,12 @@
+if TARGET_IMX6DL_G3
+
+config SYS_BOARD
+	default "imx6dl-g3"
+
+config SYS_VENDOR
+	default "reach"
+
+config SYS_CONFIG_NAME
+	default "imx6dl-g3"
+
+endif
