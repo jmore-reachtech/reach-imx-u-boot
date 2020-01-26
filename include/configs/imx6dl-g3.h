@@ -67,9 +67,14 @@
 	"splash=splash.bmp\0" \
 	"splashpos=m,m\0" \
 	"splashpart=4\0" \
+	"splashen=y\0" \
 	"mender_pre_setup_commands=setenv panel ${board_rev}; " \
-		"load mmc ${mender_uboot_dev}:${splashpart} ${kernel_addr_r} ${splash}; " \
-		"bmp display ${kernel_addr_r};\0 " \
+		"if test $splashen = y; then " \
+			"load mmc ${mender_uboot_dev}:${splashpart} ${kernel_addr_r} ${splash}; " \
+			"bmp display ${kernel_addr_r}; " \
+		"else " \
+			"echo Boot splash disabled; " \
+		"fi; \0" \
 
 #define CONFIG_BOOTCOMMAND	""
 
