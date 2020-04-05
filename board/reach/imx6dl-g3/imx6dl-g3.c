@@ -352,6 +352,14 @@ static int detect_10_4_panel(struct display_info_t const *dev)
 		return 0;
 }
 
+static int detect_12_1_panel(struct display_info_t const *dev)
+{
+	if (strstr(env_get("mender_dtb_name"), "g3-12p1"))
+		return 1;
+	else
+		return 0;
+}
+
 static void enable_rgb(struct display_info_t const *dev)
 {	
 	imx_iomux_v3_setup_multiple_pads(rgb_pads, ARRAY_SIZE(rgb_pads));
@@ -429,6 +437,26 @@ struct display_info_t const displays[] = {{
 		.xres           = 1024,
 		.yres           = 768,
 		.pixclock       = KHZ2PICOS(60000),
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 60,
+		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= detect_12_1_panel,
+	.enable	= NULL,
+	.mode	= {
+		.name           = "LCD_12_1",
+		.refresh        = 60,
+		.xres           = 1280,
+		.yres           = 800,
+		.pixclock       = KHZ2PICOS(65000),
 		.left_margin    = 220,
 		.right_margin   = 40,
 		.upper_margin   = 21,
