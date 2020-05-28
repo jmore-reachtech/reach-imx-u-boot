@@ -61,8 +61,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define LCD_PAR_ENABLE		IMX_GPIO_NR(2, 3)
 #define BACKLIGHT_PAR_ENABLE	IMX_GPIO_NR(2, 0)
 
-#define LVDS0_EN		IMX_GPIO_NR(2, 0)
-#define DISP0_VDDEN		IMX_GPIO_NR(2, 3)
+#define BACKLIGHT_EN		IMX_GPIO_NR(2, 0)
+#define DISPLAY_EN		IMX_GPIO_NR(2, 3)
 #define BACKLIGHT_PWM		IMX_GPIO_NR(1, 18)
 
 int dram_init(void)
@@ -518,8 +518,8 @@ static void setup_display(void)
 int board_early_init_f(void)
 {
 	gpio_direction_output(BACKLIGHT_PWM, 0);
-	gpio_direction_output(DISP0_VDDEN, 0);
-	gpio_direction_output(LVDS0_EN, 0);
+	gpio_direction_output(DISPLAY_EN, 0);
+	gpio_direction_output(BACKLIGHT_EN, 0);
 
 	setup_iomux_uart();
 
@@ -570,7 +570,7 @@ int board_late_init(void)
     }
 #endif
 	gpio_set_value(BACKLIGHT_PWM, 1);
-	gpio_set_value(DISP0_VDDEN, 1);
+	gpio_set_value(DISPLAY_EN, 1);
 
 	if (strstr(env_get("mender_dtb_name"), "g3-7"))
 		mdelay(400);
@@ -579,7 +579,7 @@ int board_late_init(void)
 	else
 		mdelay(150);
 
-	gpio_set_value(LVDS0_EN, 1);
+	gpio_set_value(BACKLIGHT_EN, 1);
 
 	return 0;
 }
@@ -607,8 +607,7 @@ int checkboard(void)
 
 void shutdown_lcd(void)
 {
-	gpio_set_value(LVDS0_EN, 0);
+	/* turn off backlight enable and pwm off but leave display enabled */
+	gpio_set_value(BACKLIGHT_EN, 0);
 	gpio_set_value(BACKLIGHT_PWM, 0);
-	mdelay(150);
-	gpio_set_value(DISP0_VDDEN, 0);
 }
