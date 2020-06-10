@@ -517,7 +517,12 @@ static void setup_display(void)
 
 int board_early_init_f(void)
 {
-	gpio_direction_output(BACKLIGHT_PWM, 0);
+	/* imx6dl-g3-7-wvga-ldb-tsc2046.dtb has inverted backlight pwm */
+	if (strstr(env_get("mender_dtb_name"), "7-wvga-ldb-tsc2046"))
+		gpio_set_value(BACKLIGHT_PWM, 1);
+	else
+		gpio_set_value(BACKLIGHT_PWM, 0);
+
 	gpio_direction_output(DISPLAY_EN, 0);
 	gpio_direction_output(BACKLIGHT_EN, 0);
 
@@ -569,8 +574,14 @@ int board_late_init(void)
 		env_set("touch_rev", "RESISTIVE");
     }
 #endif
-	gpio_set_value(BACKLIGHT_PWM, 1);
+
 	gpio_set_value(DISPLAY_EN, 1);
+
+	/* imx6dl-g3-7-wvga-ldb-tsc2046.dtb has inverted backlight pwm */
+	if (strstr(env_get("mender_dtb_name"), "7-wvga-ldb-tsc2046"))
+		gpio_set_value(BACKLIGHT_PWM, 0);
+	else
+		gpio_set_value(BACKLIGHT_PWM, 1);
 
 	if (strstr(env_get("mender_dtb_name"), "g3-7"))
 		mdelay(400);
@@ -609,5 +620,10 @@ void shutdown_lcd(void)
 {
 	/* turn off backlight enable and pwm off but leave display enabled */
 	gpio_set_value(BACKLIGHT_EN, 0);
-	gpio_set_value(BACKLIGHT_PWM, 0);
+
+	/* imx6dl-g3-7-wvga-ldb-tsc2046.dtb has inverted backlight pwm */
+	if (strstr(env_get("mender_dtb_name"), "7-wvga-ldb-tsc2046"))
+		gpio_set_value(BACKLIGHT_PWM, 1);
+	else
+		gpio_set_value(BACKLIGHT_PWM, 0);
 }
