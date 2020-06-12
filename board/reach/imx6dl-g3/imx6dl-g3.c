@@ -306,17 +306,33 @@ static iomux_v3_cfg_t const rgb_pads[] = {
 	MX6_PAD_DISP0_DAT17__IPU1_DISP0_DATA17,
 };
 
-static int detect_7_panel(struct display_info_t const *dev)
+static int detect_7_panel_lcd(struct display_info_t const *dev)
 {
-	if (strstr(env_get("mender_dtb_name"), "g3-7"))
+	if (strstr(env_get("mender_dtb_name"), "g3-7-wvga-lcd"))
 		return 1;
 	else
 		return 0;
 }
 
-static int detect_5_7_panel(struct display_info_t const *dev)
+static int detect_7_panel_ldb(struct display_info_t const *dev)
 {
-	if (strstr(env_get("mender_dtb_name"), "g3-5p7"))
+	if (strstr(env_get("mender_dtb_name"), "g3-7-wvga-ldb"))
+		return 1;
+	else
+		return 0;
+}
+
+static int detect_5_7_panel_lcd(struct display_info_t const *dev)
+{
+	if (strstr(env_get("mender_dtb_name"), "g3-5p7-vga-lcd"))
+		return 1;
+	else
+		return 0;
+}
+
+static int detect_5_7_panel_ldb(struct display_info_t const *dev)
+{
+	if (strstr(env_get("mender_dtb_name"), "g3-5p7-vga-ldb"))
 		return 1;
 	else
 		return 0;
@@ -351,18 +367,65 @@ static void enable_rgb(struct display_info_t const *dev)
 	imx_iomux_v3_setup_multiple_pads(rgb_pads, ARRAY_SIZE(rgb_pads));
 }
 
+static void enable_lvds(struct display_info_t const *dev)
+{
+	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
+	int reg;
+
+	/* U-boot's IPU clock tree support is broken   */
+	/* this setup supports only 65Mhz pixel clocks */
+
+	/* Turn on LDB0,IPU,IPU DI0 clocks */
+	reg = __raw_readl(&ccm->CCGR3);
+	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK;
+	writel(reg, &ccm->CCGR3);
+
+	/* set LDB0, LDB1 clk select to 011/011 */
+	reg = readl(&ccm->cs2cdr);
+	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK
+		 |MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_MASK);
+	reg |= (3<<MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET)
+	      |(3<<MXC_CCM_CS2CDR_LDB_DI1_CLK_SEL_OFFSET);
+	writel(reg, &ccm->cs2cdr);
+
+	reg = readl(&ccm->cscmr2);
+	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
+	writel(reg, &ccm->cscmr2);
+
+	reg = readl(&ccm->chsccdr);
+	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
+		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
+	writel(reg, &ccm->chsccdr);
+
+	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
+	      | IOMUXC_GPR2_DI1_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_HIGH
+	      | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
+	      | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
+	      | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
+	      | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
+	writel(reg, &iomux->gpr[2]);
+
+	reg = readl(&iomux->gpr[3]);
+	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
+	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
+		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
+	writel(reg, &iomux->gpr[3]);
+}
+
 struct display_info_t const displays[] = {{
 	.bus	= 0,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
-	.detect	= detect_7_panel,
+	.detect	= detect_7_panel_lcd,
 	.enable	= enable_rgb,
 	.mode	= {
-		.name           = "LCD_7",
+		.name           = "7-wvga-lcd",
 		.refresh        = 60,
 		.xres           = 800,
 		.yres           = 480,
-		.pixclock       = 35714,
+		.pixclock       = KHZ2PICOS(35714),
 		.left_margin    = 100,
 		.right_margin   = 100,
 		.upper_margin   = 56,
@@ -374,11 +437,51 @@ struct display_info_t const displays[] = {{
 } }, {
 	.bus	= 0,
 	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.detect	= detect_7_panel_ldb,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "7-wvga-ldb",
+		.refresh        = 60,
+		.xres           = 800,
+		.yres           = 480,
+		.pixclock       = KHZ2PICOS(35000),
+		.left_margin    = 118,
+		.right_margin   = 10,
+		.upper_margin   = 35,
+		.lower_margin   = 8,
+		.hsync_len      = 128,
+		.vsync_len      = 45,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 0,
+	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB666,
-	.detect	= detect_5_7_panel,
+	.detect	= detect_5_7_panel_lcd,
 	.enable	= enable_rgb,
 	.mode	= {
-		.name           = "LCD_5_7",
+		.name           = "5p7-vga-lcd",
+		.refresh        = 60,
+		.xres           = 640,
+		.yres           = 480,
+		.pixclock       = KHZ2PICOS(25175),
+		.left_margin    = 48,
+		.right_margin   = 16,
+		.upper_margin   = 31,
+		.lower_margin   = 11,
+		.hsync_len      = 96,
+		.vsync_len      = 2,
+		.sync           = FB_SYNC_CLK_LAT_FALL,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_LVDS666,
+	.detect	= detect_5_7_panel_ldb,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "5p7-vga-ldb",
 		.refresh        = 60,
 		.xres           = 640,
 		.yres           = 480,
@@ -396,9 +499,9 @@ struct display_info_t const displays[] = {{
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect	= detect_10_1_panel,
-	.enable	= NULL,
+	.enable	= enable_lvds,
 	.mode	= {
-		.name           = "LCD_10_1",
+		.name           = "10p1-wxga-ldb",
 		.refresh        = 60,
 		.xres           = 1280,
 		.yres           = 800,
@@ -416,9 +519,9 @@ struct display_info_t const displays[] = {{
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect	= detect_10_4_panel,
-	.enable	= NULL,
+	.enable	= enable_lvds,
 	.mode	= {
-		.name           = "LCD_10_4",
+		.name           = "10p4-xga-ldb",
 		.refresh        = 60,
 		.xres           = 1024,
 		.yres           = 768,
@@ -436,9 +539,9 @@ struct display_info_t const displays[] = {{
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect	= detect_12_1_panel,
-	.enable	= NULL,
+	.enable	= enable_lvds,
 	.mode	= {
-		.name           = "LCD_12_1",
+		.name           = "12p1-wxga-ldb",
 		.refresh        = 60,
 		.xres           = 1280,
 		.yres           = 800,
@@ -455,64 +558,24 @@ struct display_info_t const displays[] = {{
 
 size_t display_count = ARRAY_SIZE(displays);
 
-static void setup_display(void)
+static void setup_display()
 {
-	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
-	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	int reg;
-
-	imx_iomux_v3_setup_multiple_pads(display_enable_pads,
-					 ARRAY_SIZE(display_enable_pads));
-
 	enable_ipu_clock();
-	/* Turn on LDB0,IPU,IPU DI0 clocks */
-	reg = __raw_readl(&mxc_ccm->CCGR3);
-	reg |=  MXC_CCM_CCGR3_LDB_DI0_MASK;
-	writel(reg, &mxc_ccm->CCGR3);
-
-	/* set LDB0, LDB1 clk select to 011/011 */
-	reg = readl(&mxc_ccm->cs2cdr);
-	reg &= ~(MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_MASK);
-	reg |= (3 << MXC_CCM_CS2CDR_LDB_DI0_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->cs2cdr);
-
-	reg = readl(&mxc_ccm->cscmr2);
-	reg |= MXC_CCM_CSCMR2_LDB_DI0_IPU_DIV;
-	writel(reg, &mxc_ccm->cscmr2);
-
-	reg = readl(&mxc_ccm->chsccdr);
-	reg |= (CHSCCDR_CLK_SEL_LDB_DI0
-		<< MXC_CCM_CHSCCDR_IPU1_DI0_CLK_SEL_OFFSET);
-	writel(reg, &mxc_ccm->chsccdr);
-
-	reg = IOMUXC_GPR2_BGREF_RRMODE_EXTERNAL_RES
-	     | IOMUXC_GPR2_DI0_VS_POLARITY_ACTIVE_LOW
-	     | IOMUXC_GPR2_BIT_MAPPING_CH0_SPWG
-	     | IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT
-	     | IOMUXC_GPR2_LVDS_CH1_MODE_DISABLED
-	     | IOMUXC_GPR2_LVDS_CH0_MODE_ENABLED_DI0;
-	writel(reg, &iomux->gpr[2]);
-
-	reg = readl(&iomux->gpr[3]);
-	reg = (reg & ~IOMUXC_GPR3_LVDS0_MUX_CTL_MASK)
-	       | (IOMUXC_GPR3_MUX_SRC_IPU1_DI0
-		  << IOMUXC_GPR3_LVDS0_MUX_CTL_OFFSET);
-	writel(reg, &iomux->gpr[3]);
 }
+
+
 #endif
 
 int board_early_init_f(void)
 {
+	setup_iomux_uart();
+
+	imx_iomux_v3_setup_multiple_pads(display_enable_pads,
+					 ARRAY_SIZE(display_enable_pads));
+
 	gpio_direction_output(DISPLAY_EN, 0);
 	gpio_direction_output(BACKLIGHT_EN, 0);
-
-	/* check for inverted backlight pwm */
-	if (strstr(env_get("mender_dtb_name"), "-inv.dtb"))
-		gpio_direction_output(BACKLIGHT_PWM, 1);
-	else
-		gpio_direction_output(BACKLIGHT_PWM, 0);
-
-	setup_iomux_uart();
+	gpio_direction_output(BACKLIGHT_PWM, 0);
 
 #if defined(CONFIG_VIDEO_IPUV3)
 	setup_display();
@@ -563,6 +626,7 @@ int board_late_init(void)
 
 	gpio_set_value(DISPLAY_EN, 1);
 
+#if defined(CONFIG_VIDEO_IPUV3)
 	/* check for inverted backlight pwm */
 	if (strstr(env_get("mender_dtb_name"), "-inv.dtb"))
 		gpio_set_value(BACKLIGHT_PWM, 0);
@@ -577,6 +641,7 @@ int board_late_init(void)
 		mdelay(150);
 
 	gpio_set_value(BACKLIGHT_EN, 1);
+#endif
 
 	return 0;
 }
@@ -600,6 +665,7 @@ int checkboard(void)
 
 void shutdown_lcd(void)
 {
+#if defined(CONFIG_VIDEO_IPUV3)
 	/* turn off backlight enable and pwm off but leave display enabled */
 	gpio_set_value(BACKLIGHT_EN, 0);
 
@@ -608,4 +674,5 @@ void shutdown_lcd(void)
 		gpio_set_value(BACKLIGHT_PWM, 1);
 	else
 		gpio_set_value(BACKLIGHT_PWM, 0);
+#endif
 }
