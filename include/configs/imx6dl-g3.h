@@ -43,12 +43,17 @@
 #define CONFIG_CONSOLE_DEV		"ttymxc0"
 
 /* Framebuffer */
+#ifdef CONFIG_VIDEO_IPUV3
 #define CONFIG_VIDEO_SHUTDOWN_LCD
 #define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN_ALIGN
 #define CONFIG_IPUV3_CLK 198000000
 #define CONFIG_IMX_HDMI
 #define CONFIG_IMX_VIDEO_SKIP
+#define SPLASH_ENABLE_SETTING "splashen=y\0"
+#else
+#define SPLASH_ENABLE_SETTING "splashen=n\0"
+#endif
 
 /* NAND support */
 #define CONFIG_SYS_MAX_NAND_DEVICE     1
@@ -57,6 +62,7 @@
 #define CONFIG_SYS_NAND_ONFI_DETECTION
 
 #define CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
+
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"fdt_addr_r=0x18000000\0" \
 	"fdt_high=0xffffffff\0" \
@@ -67,9 +73,9 @@
 	"splash=splash.bmp\0" \
 	"splashpos=m,m\0" \
 	"splashpart=4\0" \
-	"splashen=y\0" \
-	"mender_pre_setup_commands=setenv panel ${board_rev}; " \
-		"if test $splashen = y; then " \
+	SPLASH_ENABLE_SETTING \
+	"mender_pre_setup_commands=" \
+		"if test ${splashen} = y; then " \
 			"load mmc ${mender_uboot_dev}:${splashpart} ${kernel_addr_r} ${splash}; " \
 			"bmp display ${kernel_addr_r}; " \
 		"else " \
