@@ -637,38 +637,8 @@ int overwrite_console(void)
 	return 1;
 }
 
-#ifdef CONFIG_CMD_BMODE
-static const struct boot_mode board_boot_modes[] = {
-	/* 4 bit bus width */
-	{ "mmc0",	  MAKE_CFGVAL(0x40, 0x30, 0x00, 0x00)},
-	{ "mmc1",	  MAKE_CFGVAL(0x40, 0x20, 0x00, 0x00)},
-	{ "spi1",	  MAKE_CFGVAL(0x30, 0x20, 0x00, 0x28)},
-	{ NULL,	 0},
-};
-#endif
-
-bool has_evervision(void)
-{
-	if (!i2c_probe(0x38))
-		return true;
-
-	return false;
-}
-
 int board_late_init(void)
 {
-#ifdef CONFIG_CMD_BMODE
-	add_board_boot_modes(board_boot_modes);
-#endif
-
-#ifdef CONFIG_ENV_VARS_UBOOT_RUNTIME_CONFIG
-	if (has_evervision()) {
-		env_set("touch_rev", "PCAP");
-    } else {
-		env_set("touch_rev", "RESISTIVE");
-    }
-#endif
-
 	gpio_set_value(DISPLAY_EN, 1);
 
 #if defined(CONFIG_VIDEO_IPUV3)
