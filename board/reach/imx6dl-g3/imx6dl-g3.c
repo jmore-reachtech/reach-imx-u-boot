@@ -17,6 +17,7 @@
 #include <asm/mach-imx/boot_mode.h>
 #include <asm/mach-imx/video.h>
 #include <asm/io.h>
+#include <linux/fb.h>
 #include <linux/sizes.h>
 #include <common.h>
 #include <fsl_esdhc.h>
@@ -316,6 +317,10 @@ static int detect_7_panel_lcd(struct display_info_t const *dev)
 
 static int detect_7_panel_ldb(struct display_info_t const *dev)
 {
+	/* FIXME: return 0 until ldb clock tree is fixed for
+	   pixel clocks != 65 Mhz */
+	return 0;
+
 	if (strstr(env_get("mender_dtb_name"), "g3-7-wvga-ldb"))
 		return 1;
 	else
@@ -332,6 +337,10 @@ static int detect_5_7_panel_lcd(struct display_info_t const *dev)
 
 static int detect_5_7_panel_ldb(struct display_info_t const *dev)
 {
+	/* FIXME: return 0 until ldb clock tree is fixed for
+	   pixel clocks != 65 Mhz */
+	return 0;
+
 	if (strstr(env_get("mender_dtb_name"), "g3-5p7-vga-ldb"))
 		return 1;
 	else
@@ -558,11 +567,47 @@ struct display_info_t const displays[] = {{
 
 size_t display_count = ARRAY_SIZE(displays);
 
+int board_video_skip(void)
+{
+	int i;
+	int ret;
+	char const *panel;
+
+	for (i = 0; i < display_count; i++) {
+		struct display_info_t const *dev = displays+i;
+		if (dev->detect && dev->detect(dev)) {
+			panel = dev->mode.name;
+			break;
+		}
+	}
+
+	if (i < display_count) {
+		ret = ipuv3_fb_init(&displays[i].mode, displays[i].di ? 1 : 0,
+				    displays[i].pixfmt);
+		if (!ret) {
+			if (displays[i].enable)
+				displays[i].enable(displays + i);
+
+			printf("Display: %s (%ux%u)\n",
+			       displays[i].mode.name,
+			       displays[i].mode.xres,
+			       displays[i].mode.yres);
+		} else
+			printf("Display %s cannot be configured: %d\n",
+			       displays[i].mode.name, ret);
+	} else {
+		printf("Could not find supported display, disabling splash\n");
+		env_set("splashen", "n");
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 static void setup_display()
 {
 	enable_ipu_clock();
 }
-
 
 #endif
 
@@ -627,20 +672,32 @@ int board_late_init(void)
 	gpio_set_value(DISPLAY_EN, 1);
 
 #if defined(CONFIG_VIDEO_IPUV3)
-	/* check for inverted backlight pwm */
+
+	/* turn on backlight if splash is enabled */
+
+	if (strstr(env_get("splashen"), "y")) {
+		/* check for inverted backlight pwm */
+		if (strstr(env_get("mender_dtb_name"), "-inv.dtb"))
+			gpio_set_value(BACKLIGHT_PWM, 0);
+		else
+			gpio_set_value(BACKLIGHT_PWM, 1);
+
+		if (strstr(env_get("mender_dtb_name"), "g3-7"))
+			mdelay(400);
+		else if (strstr(env_get("mender_dtb_name"), "g3-10p1"))
+			mdelay(300);
+		else
+			mdelay(150);
+
+		gpio_set_value(BACKLIGHT_EN, 1);
+	}
+#else
+	/* check for inverted backlight pwm and ensure it is off */
 	if (strstr(env_get("mender_dtb_name"), "-inv.dtb"))
-		gpio_set_value(BACKLIGHT_PWM, 0);
-	else
 		gpio_set_value(BACKLIGHT_PWM, 1);
-
-	if (strstr(env_get("mender_dtb_name"), "g3-7"))
-		mdelay(400);
-	else if (strstr(env_get("mender_dtb_name"), "g3-10p1"))
-		mdelay(300);
 	else
-		mdelay(150);
+		gpio_set_value(BACKLIGHT_PWM, 0);
 
-	gpio_set_value(BACKLIGHT_EN, 1);
 #endif
 
 	return 0;
