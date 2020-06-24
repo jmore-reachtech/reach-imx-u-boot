@@ -652,7 +652,7 @@ int board_late_init(void)
 		else
 			gpio_set_value(BACKLIGHT_PWM, 1);
 
-		if (strstr(env_get("mender_dtb_name"), "g3-7"))
+		if (strstr(env_get("mender_dtb_name"), "g3-7") || strstr(env_get("mender_dtb_name"), "g3-5p7"))
 			mdelay(400);
 		else if (strstr(env_get("mender_dtb_name"), "g3-10p1"))
 			mdelay(300);
