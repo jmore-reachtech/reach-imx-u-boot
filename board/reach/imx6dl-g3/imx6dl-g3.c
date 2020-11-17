@@ -62,6 +62,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define DISPLAY_EN		IMX_GPIO_NR(2, 3)
 #define BACKLIGHT_PWM		IMX_GPIO_NR(1, 18)
 
+#define EMMC_RESET		IMX_GPIO_NR(6, 8)
+
 int dram_init(void)
 {
 	gd->ram_size = get_ram_size((void *)PHYS_SDRAM, PHYS_SDRAM_SIZE);
@@ -121,6 +123,10 @@ static iomux_v3_cfg_t const display_enable_pads[] = {
 	MX6_PAD_NANDF_D0__GPIO2_IO00  | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_NANDF_D3__GPIO2_IO03  | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_SD1_CMD__GPIO1_IO18  | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+static iomux_v3_cfg_t const emmc_reset_pads[] = {
+	MX6_PAD_NANDF_ALE__GPIO6_IO08	| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 static struct i2c_pads_info i2c_pad_info1 = {
@@ -702,4 +708,14 @@ void shutdown_lcd(void)
 	else
 		gpio_set_value(BACKLIGHT_PWM, 0);
 #endif
+}
+
+void reset_emmc(void)
+{
+	imx_iomux_v3_setup_multiple_pads(emmc_reset_pads,
+					 ARRAY_SIZE(emmc_reset_pads));
+
+	gpio_direction_output(EMMC_RESET, 0);
+	mdelay(10);
+	gpio_set_value(EMMC_RESET, 1);
 }
