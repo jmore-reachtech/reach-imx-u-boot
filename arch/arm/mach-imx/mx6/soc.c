@@ -558,6 +558,7 @@ void reset_misc(void)
 	lcdif_power_down();
 #endif
 #endif
+	reset_emmc();
 }
 
 void s_init(void)
