@@ -39,6 +39,7 @@
 /* I2C Configs */
 #define CONFIG_SYS_I2C
 #define CONFIG_SYS_I2C_SPEED		  100000
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN    2
 
 #define CONFIG_CONSOLE_DEV		"ttymxc0"
 
