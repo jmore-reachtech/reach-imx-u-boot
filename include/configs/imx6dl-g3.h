@@ -70,7 +70,7 @@
 	"console=" CONFIG_CONSOLE_DEV "\0" \
 	"bootargs=rw rootfstype=ext4 console=${console},${baudrate} quiet " \
 		"consoleblank=0 vt.global_cursor_default=0\0" \
-	"splash=splash.bmp\0" \
+	"splash=/share/pixmaps/splash.bmp\0" \
 	"splashpos=m,m\0" \
 	"splashpart=4\0" \
 	SPLASH_ENABLE_SETTING \
