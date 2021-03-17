@@ -29,6 +29,9 @@
 #include <netdev.h>
 #include <linux/fb.h>
 
+/* json parser library */
+#include "jsmn.h"
+
 /* Special MXCFB sync flags are here. */
 #include "../drivers/video/mxcfb.h"
 
