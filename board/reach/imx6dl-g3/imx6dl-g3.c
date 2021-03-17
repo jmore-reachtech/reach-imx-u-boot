@@ -28,9 +28,79 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/fb.h>
+#include <environment.h>
 
 /* json parser library */
 #include "jsmn.h"
+
+static int jsoneq(const char *json, jsmntok_t *tok, const char *s) {
+	if (tok->type == JSMN_STRING && (int)strlen(s) == tok->end - tok->start &&
+		strncmp(json + tok->start, s, tok->end - tok->start) == 0) {
+		return 0;
+	}
+	return -1;
+}
+
+static void get_dtb_name_from_json() {
+	int r;
+	unsigned int i, j, len;
+
+	jsmn_parser p;
+	jsmntok_t t[4096];
+	unsigned char config_json[32768];
+	unsigned char dtb_name[128];
+
+	/* read json config string from eeprom */
+	i2c_set_bus_num(0);
+
+	for (i=0; i < 32768; i+=128) {
+		if (i2c_read(0x54, i, 2, (char *)(config_json + i), 128) < 0) {
+			printf("JSON:  unable to read eeprom config\n");
+			return;
+		}
+		
+		if (i == 0 && config_json[0] != '{') {
+			printf("JSON:  first byte of config is not '{', unprogrammed eeprom?\n");
+		}
+				
+		for (j=0; j < 128 && config_json[i+j] != 0; j++);
+		
+		if (j < 128)
+			break;
+	}
+
+	/* initialize the jsmn parser */
+	jsmn_init(&p);
+
+	r = jsmn_parse(&p, config_json, strlen(config_json), t,
+                 sizeof(t) / sizeof(t[0]));
+
+	if (r < 0) {
+		printf("JSON:  unable to parse eeprom config\n");
+		return;
+	}
+
+	env_set("eeprom_json", config_json);
+
+	if (r < 1 || t[0].type == JSMN_OBJECT) {
+		/* Loop over all keys of the root object looking for dtb*/
+		for (i = 1; i < r; i++) {
+			if (jsoneq(config_json, &t[i], "dtb") == 0) {
+				len = t[i + 1].end - t[i + 1].start;
+				if ( len < 128) {
+					strncpy(dtb_name, config_json + t[i + 1].start, len);
+					dtb_name[len] = 0;
+					printf("JSON:  setting mender_dtb_name to %s\n", dtb_name);
+					env_set("mender_dtb_name", dtb_name);
+					env_save();
+				} else
+					printf("JSON:  dtb token in eeprom exceeds max length\n");
+				break;
+			}
+		}
+	} else
+		printf("JSON:  invalid eeprom config format\n");
+}
 
 /* Special MXCFB sync flags are here. */
 #include "../drivers/video/mxcfb.h"
@@ -582,6 +652,8 @@ int board_video_skip(void)
 	int ret;
 	char const *panel;
 
+	get_dtb_name_from_json();
+
 	for (i = 0; i < display_count; i++) {
 		struct display_info_t const *dev = displays+i;
 		if (dev->detect && dev->detect(dev)) {
@@ -678,7 +750,6 @@ int board_late_init(void)
 		gpio_set_value(BACKLIGHT_PWM, 0);
 
 #endif
-
 	return 0;
 }
 
