@@ -61,6 +61,7 @@ static void get_dtb_name_from_json() {
 		
 		if (i == 0 && config_json[0] != '{') {
 			printf("JSON:  first byte of config is not '{', unprogrammed eeprom?\n");
+			return;
 		}
 				
 		for (j=0; j < 128 && config_json[i+j] != 0; j++);
