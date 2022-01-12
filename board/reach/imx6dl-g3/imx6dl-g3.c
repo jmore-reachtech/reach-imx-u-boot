@@ -104,7 +104,7 @@ static void get_dtb_name_from_json() {
 }
 
 /* Special MXCFB sync flags are here. */
-#include "../drivers/video/mxcfb.h"
+#include "../drivers/video/imx/mxcfb.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
