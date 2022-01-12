@@ -726,7 +726,7 @@ CONFIG_INPUT=y
 # CONFIG_CROS_EC is not set
 # CONFIG_DS4510 is not set
 # CONFIG_FSL_SEC_MON is not set
-# CONFIG_MXC_OCOTP is not set
+CONFIG_MXC_OCOTP=y
 # CONFIG_NUVOTON_NCT6102D is not set
 # CONFIG_PWRSEQ is not set
 # CONFIG_PCA9551_LED is not set
