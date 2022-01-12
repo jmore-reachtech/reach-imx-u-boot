@@ -28,7 +28,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/fb.h>
-#include <environment.h>
+#include <env_internal.h>
 
 /* json parser library */
 #include "jsmn.h"
