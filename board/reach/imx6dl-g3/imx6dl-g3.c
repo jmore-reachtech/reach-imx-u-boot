@@ -20,7 +20,7 @@
 #include <linux/fb.h>
 #include <linux/sizes.h>
 #include <common.h>
-#include <fsl_esdhc.h>
+#include <fsl_esdhc_imx.h>
 #include <i2c.h>
 #include <malloc.h>
 #include <mmc.h>
