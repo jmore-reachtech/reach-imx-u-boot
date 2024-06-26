@@ -4,6 +4,7 @@
  * SPDX-License-Identifier:	GPL-2.0+
  */
 
+#include <config.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
@@ -28,6 +29,7 @@
 #include <miiphy.h>
 #include <netdev.h>
 #include <linux/fb.h>
+#include <linux/delay.h>
 #include <env_internal.h>
 
 /* json parser library */
@@ -254,7 +256,7 @@ int board_mmc_getcd(struct mmc *mmc)
 	return ret;
 }
 
-int board_mmc_init(bd_t *bis)
+int board_mmc_init(struct bd_info *bis)
 {
 	s32 status = 0;
 	u32 index = 0;
@@ -328,7 +330,7 @@ int board_phy_config(struct phy_device *phydev)
 /* Ethernet PHY can be located at address 0x1 */
 #define ETH_PHY_MASK	(1 << 0x1)
 
-int board_eth_init(bd_t *bis)
+int board_eth_init(struct bd_info *bis)
 {
 	uint32_t base = IMX_FEC_BASE;
 	struct mii_dev *bus = NULL;
