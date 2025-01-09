@@ -445,9 +445,17 @@ static int detect_10_4_panel(struct display_info_t const *dev)
 		return 0;
 }
 
-static int detect_12_1_panel(struct display_info_t const *dev)
+static int detect_12_1_wxga_ldb_panel(struct display_info_t const *dev)
 {
-	if (strstr(env_get("mender_dtb_name"), "g3-12p1"))
+	if (strstr(env_get("mender_dtb_name"), "g3-12p1-wxga-ldb"))
+		return 1;
+	else
+		return 0;
+}
+
+static int detect_12_1_tft_lcd_panel(struct display_info_t const *dev)
+{
+	if (strstr(env_get("mender_dtb_name"), "g3-12p1-tft-lcd"))
 		return 1;
 	else
 		return 0;
@@ -629,7 +637,7 @@ struct display_info_t const displays[] = {{
 	.bus	= 0,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_12_1_panel,
+	.detect	= detect_12_1_wxga_ldb_panel,
 	.enable	= enable_lvds,
 	.mode	= {
 		.name           = "12p1-wxga-ldb",
@@ -643,6 +651,26 @@ struct display_info_t const displays[] = {{
 		.lower_margin   = 7,
 		.hsync_len      = 60,
 		.vsync_len      = 10,
+		.sync           = FB_SYNC_EXT,
+		.vmode          = FB_VMODE_NONINTERLACED
+} }, {
+	.bus	= 0,
+	.addr	= 0,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
+	.detect	= detect_12_1_tft_lcd_panel,
+	.enable	= enable_lvds,
+	.mode	= {
+		.name           = "12p1-tft-lcd",
+		.refresh        = 60,
+		.xres           = 1024,
+		.yres           = 768,
+		.pixclock       = KHZ2PICOS(65000),
+		.left_margin    = 220,
+		.right_margin   = 40,
+		.upper_margin   = 21,
+		.lower_margin   = 7,
+		.hsync_len      = 20,
+		.vsync_len      = 4,
 		.sync           = FB_SYNC_EXT,
 		.vmode          = FB_VMODE_NONINTERLACED
 } } };
