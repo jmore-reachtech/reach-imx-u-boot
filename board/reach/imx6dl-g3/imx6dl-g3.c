@@ -451,9 +451,9 @@ static int detect_12_1_wxga_ldb_panel(struct display_info_t const *dev)
 		return 0;
 }
 
-static int detect_12_1_tft_lcd_panel(struct display_info_t const *dev)
+static int detect_12_1_xga_ldb_panel(struct display_info_t const *dev)
 {
-	if (strstr(env_get("mender_dtb_name"), "g3-12p1-tft-lcd"))
+	if (strstr(env_get("mender_dtb_name"), "g3-12p1-xga-ldb"))
 		return 1;
 	else
 		return 0;
@@ -655,10 +655,10 @@ struct display_info_t const displays[] = {{
 	.bus	= 0,
 	.addr	= 0,
 	.pixfmt	= IPU_PIX_FMT_RGB24,
-	.detect	= detect_12_1_tft_lcd_panel,
+	.detect	= detect_12_1_xga_ldb_panel,
 	.enable	= enable_lvds,
 	.mode	= {
-		.name           = "12p1-tft-lcd",
+		.name           = "12p1-xga-ldb",
 		.refresh        = 60,
 		.xres           = 1024,
 		.yres           = 768,
